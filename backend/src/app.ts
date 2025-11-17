@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import 'express-async-errors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes';
+import dropRoutes from './routes/dropRoutes';
 import { errorHandler } from './middleware/errorHandler';
 
 dotenv.config();
@@ -26,7 +27,7 @@ app.get('/health', (req: Request, res: Response) => {
 
 // Routes
 app.use('/auth', authRoutes);
-// app.use('/drops', dropRoutes);
+app.use('/drops', dropRoutes);
 // app.use('/admin', adminRoutes);
 
 // 404 Handler
