@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { DropController } from '../controllers/dropController';
 import { WaitlistController } from '../controllers/waitlistController';
+import { ClaimController } from '../controllers/claimController';
 import { authenticate } from '../middleware/auth';
 
 const router = Router();
@@ -36,5 +37,17 @@ router.post('/:id/leave', authenticate, WaitlistController.leaveWaitlist);
  * Get waitlist for a drop (public)
  */
 router.get('/:id/waitlist', WaitlistController.getDropWaitlist);
+
+/**
+ * POST /drops/:id/claim
+ * Claim a drop (protected)
+ */
+router.post('/:id/claim', authenticate, ClaimController.claimDrop);
+
+/**
+ * GET /drops/:id/claims
+ * Get all claims for a drop (public)
+ */
+router.get('/:id/claims', ClaimController.getDropClaims);
 
 export default router;
