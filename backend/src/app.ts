@@ -3,6 +3,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import 'express-async-errors';
 import dotenv from 'dotenv';
+import authRoutes from './routes/authRoutes';
+import { errorHandler } from './middleware/errorHandler';
 
 dotenv.config();
 
@@ -22,8 +24,8 @@ app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Routes will be added here
-// app.use('/auth', authRoutes);
+// Routes
+app.use('/auth', authRoutes);
 // app.use('/drops', dropRoutes);
 // app.use('/admin', adminRoutes);
 
@@ -36,15 +38,6 @@ app.use((req: Request, res: Response) => {
 });
 
 // Error Handler
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error('Error:', err);
-
-  res.status(500).json({
-    success: false,
-    error: process.env.NODE_ENV === 'production'
-      ? 'Internal server error'
-      : err.message,
-  });
-});
+app.use(errorHandler);
 
 export default app;
