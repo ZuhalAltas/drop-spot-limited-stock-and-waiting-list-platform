@@ -1,6 +1,6 @@
 # DropSpot - Limited Stock & Waitlist Platform
 
-**Project Start Time:** 2025-01-17 14:30
+
 
 ---
 
@@ -15,23 +15,27 @@ DropSpot is a platform for managing limited stock product drops with a fair wait
 ### Technology Stack
 
 **Backend:**
+
 - Node.js + TypeScript
 - Express.js
 - SQLite (with better-sqlite3)
 - JWT Authentication
 
 **Frontend:**
+
 - Next.js 14 (App Router)
 - TypeScript
 - Tailwind CSS
 - Zustand (State Management)
 
 **Testing:**
+
 - Jest (Backend Unit & Integration)
 - React Testing Library (Frontend Component)
 - Supertest (API Integration)
 
 **DevOps:**
+
 - GitHub Actions (CI/CD)
 - Docker Compose
 
@@ -40,6 +44,7 @@ DropSpot is a platform for managing limited stock product drops with a fair wait
 ## 📊 Data Model
 
 ### Users
+
 ```sql
 id          INTEGER PRIMARY KEY
 email       TEXT UNIQUE NOT NULL
@@ -49,6 +54,7 @@ created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
 ```
 
 ### Drops
+
 ```sql
 id                   INTEGER PRIMARY KEY
 title                TEXT NOT NULL
@@ -60,6 +66,7 @@ created_at           DATETIME DEFAULT CURRENT_TIMESTAMP
 ```
 
 ### Waitlist
+
 ```sql
 id              INTEGER PRIMARY KEY
 user_id         INTEGER NOT NULL
@@ -70,6 +77,7 @@ UNIQUE(user_id, drop_id)
 ```
 
 ### Claims
+
 ```sql
 id          INTEGER PRIMARY KEY
 user_id     INTEGER NOT NULL
@@ -83,10 +91,12 @@ claimed_at  DATETIME DEFAULT CURRENT_TIMESTAMP
 ## 🔌 API Endpoints
 
 ### Authentication
+
 - `POST /auth/signup` - User registration
 - `POST /auth/login` - User login
 
 ### Drops (Public)
+
 - `GET /drops` - List active drops
 - `GET /drops/:id` - Get drop details
 - `POST /drops/:id/join` - Join waitlist
@@ -94,6 +104,7 @@ claimed_at  DATETIME DEFAULT CURRENT_TIMESTAMP
 - `POST /drops/:id/claim` - Claim during window
 
 ### Admin
+
 - `POST /admin/drops` - Create new drop
 - `PUT /admin/drops/:id` - Update drop
 - `DELETE /admin/drops/:id` - Delete drop
@@ -103,6 +114,7 @@ claimed_at  DATETIME DEFAULT CURRENT_TIMESTAMP
 ## 🔒 Idempotency Strategy
 
 All critical operations (join/leave/claim) use:
+
 - Database transactions with locks
 - Unique constraints (user_id, drop_id)
 - Idempotency checks to prevent duplicate operations
@@ -115,6 +127,7 @@ All critical operations (join/leave/claim) use:
 **Purpose:** Generate unique priority scores for waitlist fairness.
 
 **Generation Steps:**
+
 1. Capture project start time: `YYYYMMDDHHmm`
 2. Get git remote URL: `git config --get remote.origin.url`
 3. Get first commit timestamp: `git log --reverse --format=%ct | head -n1`
@@ -122,6 +135,7 @@ All critical operations (join/leave/claim) use:
 5. SHA256 hash → first 12 characters = seed
 
 **Priority Score Formula:**
+
 ```
 A = 7 + (int(seed[0:2], 16) % 5)
 B = 13 + (int(seed[2:4], 16) % 7)
@@ -137,10 +151,12 @@ See `/backend/src/utils/seed.ts` for implementation.
 ## 🚀 Installation
 
 ### Prerequisites
+
 - Node.js 18+
 - npm or yarn
 
 ### Backend Setup
+
 ```bash
 cd backend
 npm install
@@ -149,6 +165,7 @@ npm run dev
 ```
 
 ### Frontend Setup
+
 ```bash
 cd frontend
 npm install
@@ -160,6 +177,7 @@ npm run dev
 ## 🧪 Testing
 
 ### Backend
+
 ```bash
 cd backend
 npm test              # Run all tests
@@ -168,6 +186,7 @@ npm run test:coverage # Coverage report
 ```
 
 ### Frontend
+
 ```bash
 cd frontend
 npm test              # Run component tests
@@ -185,12 +204,14 @@ npm run test:e2e      # End-to-end tests
 ## 🎨 Technical Decisions & Personal Contributions
 
 ### Key Architectural Choices:
+
 1. **Repository Pattern:** Separation of data access logic for maintainability
 2. **Service Layer:** Business logic isolated from controllers
 3. **Idempotent Transactions:** Using SQLite's IMMEDIATE transactions with row-level locking
 4. **Priority Score Algorithm:** Custom seed-based scoring for fair waitlist ordering
 
 ### Personal Touches:
+
 - (To be added during development)
 
 ---
@@ -198,6 +219,7 @@ npm run test:e2e      # End-to-end tests
 ## 🤖 AI Integration (Bonus)
 
 AI-powered drop description generator in admin panel using OpenAI API.
+
 - Analyzes drop title and suggests compelling descriptions
 - Helps admins create engaging content quickly
 
@@ -233,6 +255,7 @@ drop-spot/
 ## 👨‍💻 Development Workflow
 
 This project follows a structured Git workflow:
+
 - Feature branches for each major component
 - Pull Requests with detailed descriptions
 - Meaningful commit messages
