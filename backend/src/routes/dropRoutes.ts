@@ -2,23 +2,23 @@ import { Router } from 'express';
 import { DropController } from '../controllers/dropController';
 import { WaitlistController } from '../controllers/waitlistController';
 import { ClaimController } from '../controllers/claimController';
-import { authenticate } from '../middleware/auth';
+import { authenticate, optionalAuthenticate } from '../middleware/auth';
 
 const router = Router();
 
 /**
  * GET /drops
  * Get all drops (active and upcoming)
- * Public endpoint - no authentication required
+ * Public endpoint - attaches user context if token provided
  */
-router.get('/', DropController.getDrops);
+router.get('/', optionalAuthenticate, DropController.getDrops);
 
 /**
  * GET /drops/:id
  * Get drop details by ID
  * Public endpoint - but shows extra info if authenticated
  */
-router.get('/:id', DropController.getDropById);
+router.get('/:id', optionalAuthenticate, DropController.getDropById);
 
 /**
  * POST /drops/:id/join

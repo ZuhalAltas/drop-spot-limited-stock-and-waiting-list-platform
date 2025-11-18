@@ -1,4 +1,5 @@
 import { DropRepository } from '../models/Drop';
+import { WaitlistRepository } from '../models/Waitlist';
 import { NotFoundError } from '../utils/errors';
 import { Drop } from '../types';
 
@@ -44,11 +45,19 @@ export class DropService {
       throw new NotFoundError('Drop not found');
     }
 
+    const userHasClaimed = userId
+      ? DropRepository.hasUserClaimed(drop.id, userId)
+      : false;
+    const userInWaitlist = userId
+      ? WaitlistRepository.isInWaitlist(userId, drop.id)
+      : false;
+
     const enrichedDrop = {
       ...drop,
       remaining_stock: DropRepository.getRemainingStock(drop.id),
       is_claim_window_open: DropRepository.isClaimWindowOpen(drop),
-      user_has_claimed: userId ? DropRepository.hasUserClaimed(drop.id, userId) : false,
+      user_has_claimed: userHasClaimed,
+      user_in_waitlist: userInWaitlist,
     };
 
     return enrichedDrop;

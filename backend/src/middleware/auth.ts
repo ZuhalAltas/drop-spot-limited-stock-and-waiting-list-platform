@@ -14,20 +14,25 @@ declare global {
   }
 }
 
+const extractBearerToken = (header?: string): string | null => {
+  if (!header || !header.startsWith('Bearer ')) {
+    return null;
+  }
+  return header.substring(7);
+};
+
 /**
  * Middleware to authenticate requests using JWT
  */
 export function authenticate(req: Request, res: Response, next: NextFunction) {
   try {
-    const authHeader = req.headers.authorization;
+    const token = extractBearerToken(req.headers.authorization);
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!token) {
       throw new UnauthorizedError('No token provided');
     }
 
-    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
     const payload = verifyToken(token);
-
     req.user = payload;
     next();
   } catch (error) {
@@ -42,6 +47,28 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
       success: false,
       error: 'Invalid or expired token',
     });
+  }
+}
+
+/**
+ * Middleware that optionally attaches user info if a valid token is provided.
+ * Does not block the request if no/invalid token is present.
+ */
+export function optionalAuthenticate(
+  req: Request,
+  _res: Response,
+  next: NextFunction
+) {
+  try {
+    const token = extractBearerToken(req.headers.authorization);
+    if (token) {
+      const payload = verifyToken(token);
+      req.user = payload;
+    }
+  } catch {
+    // Ignore invalid tokens for optional auth
+  } finally {
+    next();
   }
 }
 
