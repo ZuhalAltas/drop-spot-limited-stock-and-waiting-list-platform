@@ -68,6 +68,9 @@ export default function DropDetailPage() {
     );
   }
 
+  const userInWaitlist = currentDrop.user_in_waitlist ?? false;
+  const claimWindowOpen = currentDrop.is_claim_window_open;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -106,7 +109,7 @@ export default function DropDetailPage() {
                   Congratulations! Your Claim Code:
                 </div>
                 <div className="text-4xl font-mono font-bold text-green-600">{claimCode}</div>
-                <p className="text-sm text-green-700 mt-2">Save this code! You'll need it to collect your item.</p>
+                <p className="text-sm text-green-700 mt-2">Save this code! You&apos;ll need it to collect your item.</p>
               </div>
             )}
 
@@ -117,10 +120,24 @@ export default function DropDetailPage() {
               </div>
             )}
 
+            {/* Waitlist status */}
+            {user && !currentDrop.user_has_claimed && userInWaitlist && !claimWindowOpen && (
+              <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-6 text-center">
+                <div className="text-blue-800 font-medium">You&apos;re currently in the waitlist.</div>
+                <p className="text-sm text-blue-700 mt-1">Check back when the claim window opens.</p>
+              </div>
+            )}
+
+            {user && !currentDrop.user_has_claimed && claimWindowOpen && !userInWaitlist && (
+              <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-6 text-center">
+                <div className="text-yellow-800 font-medium">Join the waitlist before claiming this drop.</div>
+              </div>
+            )}
+
             {/* Action Buttons */}
             {user && !currentDrop.user_has_claimed && (
               <div className="space-y-4">
-                {!currentDrop.is_claim_window_open && (
+                {!userInWaitlist && (
                   <button
                     onClick={handleJoinWaitlist}
                     disabled={actionLoading}
@@ -130,23 +147,35 @@ export default function DropDetailPage() {
                   </button>
                 )}
 
-                {currentDrop.is_claim_window_open && (
+                {claimWindowOpen && (
                   <button
                     onClick={handleClaim}
-                    disabled={actionLoading || currentDrop.remaining_stock <= 0}
-                    className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold py-4 rounded-lg hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 transition text-lg"
+                    disabled={
+                      actionLoading ||
+                      currentDrop.remaining_stock <= 0 ||
+                      !userInWaitlist
+                    }
+                    className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold py-4 rounded-lg hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-lg"
                   >
-                    {actionLoading ? 'Processing...' : currentDrop.remaining_stock <= 0 ? 'Sold Out' : 'Claim Now!'}
+                    {actionLoading
+                      ? 'Processing...'
+                      : currentDrop.remaining_stock <= 0
+                      ? 'Sold Out'
+                      : !userInWaitlist
+                      ? 'Join waitlist to claim'
+                      : 'Claim Now!'}
                   </button>
                 )}
 
-                <button
-                  onClick={handleLeaveWaitlist}
-                  disabled={actionLoading}
-                  className="w-full border-2 border-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition"
-                >
-                  Leave Waitlist
-                </button>
+                {userInWaitlist && (
+                  <button
+                    onClick={handleLeaveWaitlist}
+                    disabled={actionLoading}
+                    className="w-full border-2 border-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition"
+                  >
+                    Leave Waitlist
+                  </button>
+                )}
               </div>
             )}
 

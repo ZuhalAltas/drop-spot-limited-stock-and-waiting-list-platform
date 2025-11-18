@@ -13,6 +13,10 @@ export interface Drop {
   claim_window_start: string;
   claim_window_end: string;
   created_at: string;
+  remaining_stock?: number;
+  is_claim_window_open?: boolean;
+  user_has_claimed?: boolean;
+  user_in_waitlist?: boolean;
 }
 
 export interface WaitlistEntry {

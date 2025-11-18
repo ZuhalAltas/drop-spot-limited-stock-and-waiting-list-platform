@@ -3,6 +3,18 @@ import { persist } from 'zustand/middleware';
 import api from '../api';
 import { User } from '../types';
 
+const syncTokenStorage = (token: string | null) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  if (token) {
+    localStorage.setItem('token', token);
+  } else {
+    localStorage.removeItem('token');
+  }
+};
+
 interface AuthState {
   user: User | null;
   token: string | null;
@@ -30,7 +42,7 @@ export const useAuthStore = create<AuthState>()(
           const response = await api.post('/auth/login', { email, password });
           const { user, token } = response.data.data;
 
-          localStorage.setItem('token', token);
+          syncTokenStorage(token);
           set({
             user,
             token,
@@ -52,7 +64,7 @@ export const useAuthStore = create<AuthState>()(
           const response = await api.post('/auth/signup', { email, password });
           const { user, token } = response.data.data;
 
-          localStorage.setItem('token', token);
+          syncTokenStorage(token);
           set({
             user,
             token,
@@ -69,7 +81,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
-        localStorage.removeItem('token');
+        syncTokenStorage(null);
         set({
           user: null,
           token: null,
@@ -86,6 +98,9 @@ export const useAuthStore = create<AuthState>()(
         token: state.token,
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => (state) => {
+        syncTokenStorage(state?.token ?? null);
+      },
     }
   )
 );
