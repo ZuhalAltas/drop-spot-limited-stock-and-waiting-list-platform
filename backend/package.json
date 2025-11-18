@@ -4,13 +4,13 @@
   "description": "DropSpot Backend API",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
-    "migrate": "node -r tsx/register database/migrate.ts",
-    "seed": "node -r tsx/register database/seed.ts",
+  "migrate": "tsx database/migrate.ts",
+  "seed": "tsx database/seed.ts",
+  "dev": "tsx watch src/server.ts",
     "lint": "eslint . --ext .ts"
   },
   "keywords": ["dropspot", "api", "waitlist"],
