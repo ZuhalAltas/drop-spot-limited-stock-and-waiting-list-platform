@@ -1,5 +1,7 @@
 # DropSpot - Limited Stock & Waitlist Platform
 
+Project Start Time: 2025.11.17 05.30
+
 A full-stack platform for managing limited stock product drops with a fair waitlist and claim system. Users can join waitlists for exclusive drops and claim their spots during designated time windows.
 
 ---
@@ -7,6 +9,7 @@ A full-stack platform for managing limited stock product drops with a fair waitl
 ## 📋 Project Overview
 
 DropSpot enables fair distribution of limited stock items through:
+
 - **Waitlist System:** Priority-based queue using unique seed algorithm
 - **Claim Windows:** Time-limited claiming periods
 - **Idempotent Operations:** Transaction-safe, duplicate-proof actions
@@ -20,6 +23,7 @@ DropSpot enables fair distribution of limited stock items through:
 ### Technology Stack
 
 **Backend:**
+
 - Node.js + TypeScript
 - Express.js
 - SQLite (better-sqlite3)
@@ -27,6 +31,7 @@ DropSpot enables fair distribution of limited stock items through:
 - Bcrypt password hashing
 
 **Frontend:**
+
 - Next.js 14 (App Router)
 - TypeScript
 - Tailwind CSS
@@ -34,6 +39,7 @@ DropSpot enables fair distribution of limited stock items through:
 - Axios (API Client)
 
 **Testing:**
+
 - Jest (Backend Unit & Integration)
 - Supertest (API Integration)
 - Comprehensive test coverage
@@ -45,6 +51,7 @@ DropSpot enables fair distribution of limited stock items through:
 ### Tables
 
 **Users**
+
 ```sql
 id          INTEGER PRIMARY KEY
 email       TEXT UNIQUE NOT NULL
@@ -54,6 +61,7 @@ created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
 ```
 
 **Drops**
+
 ```sql
 id                   INTEGER PRIMARY KEY
 title                TEXT NOT NULL
@@ -66,6 +74,7 @@ CHECK(claim_window_end > claim_window_start)
 ```
 
 **Waitlist**
+
 ```sql
 id              INTEGER PRIMARY KEY
 user_id         INTEGER NOT NULL
@@ -78,6 +87,7 @@ FOREIGN KEY (drop_id) REFERENCES drops(id)
 ```
 
 **Claims**
+
 ```sql
 id          INTEGER PRIMARY KEY
 user_id     INTEGER NOT NULL
@@ -94,24 +104,29 @@ FOREIGN KEY (drop_id) REFERENCES drops(id)
 ## 🔌 API Endpoints
 
 ### Authentication
+
 - `POST /auth/signup` - User registration
 - `POST /auth/login` - User login
 - `GET /auth/me` - Get current user profile
 
 ### Drops (Public)
+
 - `GET /drops` - List drops (filter: active, upcoming, all)
 - `GET /drops/:id` - Get drop details
 - `GET /drops/:id/waitlist` - View waitlist for drop
 - `GET /drops/:id/claims` - View claims for drop
 
 ### Waitlist (Protected)
+
 - `POST /drops/:id/join` - Join waitlist (idempotent)
 - `POST /drops/:id/leave` - Leave waitlist (idempotent)
 
 ### Claim (Protected)
+
 - `POST /drops/:id/claim` - Claim drop during window (idempotent)
 
 ### Admin (Protected - Admin Only)
+
 - `GET /admin/drops` - List all drops with stats
 - `POST /admin/drops` - Create new drop
 - `PUT /admin/drops/:id` - Update drop
@@ -124,20 +139,24 @@ FOREIGN KEY (drop_id) REFERENCES drops(id)
 All critical operations use idempotency to prevent duplicate actions:
 
 **Join Waitlist:**
+
 - Uses `UNIQUE(user_id, drop_id)` constraint
 - Returns existing entry if already joined
 - IMMEDIATE transaction for write lock
 
 **Leave Waitlist:**
+
 - Multiple leave requests return success
 - Only first removes entry
 
 **Claim Drop:**
+
 - Returns existing claim if already claimed
 - Transaction-safe stock checking
 - Prevents overselling through locks
 
 **Implementation:**
+
 ```typescript
 const transaction = db.transaction(() => {
   // Check existing
@@ -159,6 +178,7 @@ return transaction(); // Execute atomically
 **Purpose:** Generate unique, deterministic seed for priority score calculation.
 
 **Generation Steps:**
+
 1. Get git remote URL: `git config --get remote.origin.url`
 2. Get first commit timestamp: `git log --reverse --format=%ct | head -n1`
 3. Capture start time: `YYYYMMDDHHmm`
@@ -166,6 +186,7 @@ return transaction(); // Execute atomically
 5. SHA256 hash → first 12 characters = seed
 
 **Coefficient Derivation:**
+
 ```typescript
 A = 7 + (parseInt(seed.substring(0, 2), 16) % 5)
 B = 13 + (parseInt(seed.substring(2, 4), 16) % 7)
@@ -173,6 +194,7 @@ C = 3 + (parseInt(seed.substring(4, 6), 16) % 3)
 ```
 
 **Priority Score Formula:**
+
 ```typescript
 priority_score = 1000 +
   (signup_latency_ms % A) +
@@ -181,29 +203,37 @@ priority_score = 1000 +
 ```
 
 This ensures:
+
 - **Fairness:** No gaming the system
 - **Uniqueness:** Each project has different coefficients
 - **Reproducibility:** Same seed generates same scores
 
 See `backend/src/utils/seed.ts` for implementation.
 
+ Our Seed Information:
+   Seed: 2474bee4e249
+   Coefficients: A=8, B=17, C=4
+
 ---
 
 ## 🚀 Installation & Setup
 
 ### Prerequisites
+
 - Node.js 18+
 - npm or yarn
 
 ### Quick Start
 
 **1. Clone Repository**
+
 ```bash
 git clone <repository-url>
 cd drop-spot-limited-stock-and-waiting-list-platform
 ```
 
 **2. Backend Setup**
+
 ```bash
 cd backend
 npm install
@@ -212,20 +242,24 @@ npm run migrate
 npm run seed
 npm run dev
 ```
+
 Backend runs on: `http://localhost:3001`
 
 **3. Frontend Setup**
+
 ```bash
 cd frontend
 npm install
 cp .env.example .env.local
 npm run dev
 ```
+
 Frontend runs on: `http://localhost:3000`
 
 ### Environment Variables
 
 **Backend (.env)**
+
 ```
 PORT=3001
 NODE_ENV=development
@@ -236,6 +270,7 @@ CORS_ORIGIN=http://localhost:3000
 ```
 
 **Frontend (.env.local)**
+
 ```
 NEXT_PUBLIC_API_URL=http://localhost:3001
 ```
@@ -245,6 +280,7 @@ NEXT_PUBLIC_API_URL=http://localhost:3001
 ## 🧪 Testing
 
 ### Backend Tests
+
 ```bash
 cd backend
 
@@ -259,6 +295,7 @@ npm run test:coverage
 ```
 
 **Test Suites:**
+
 - `tests/auth.test.ts` - Authentication, signup, login
 - `tests/drops.test.ts` - Drop listing, filtering
 - `tests/waitlist.test.ts` - Waitlist operations, race conditions
@@ -268,6 +305,7 @@ npm run test:coverage
 **Coverage:** >70% (unit + integration)
 
 ### Test Highlights
+
 - **Idempotency Tests:** Concurrent requests handled correctly
 - **Race Condition Tests:** Stock never oversold
 - **Transaction Tests:** Database consistency verified
@@ -278,19 +316,26 @@ npm run test:coverage
 ## 📸 Screenshots
 
 ### 1. Login Page
-Clean authentication interface with error handling.
+
+![](C:\Users\Bilgisayar\AppData\Roaming\marktext\images\2025-11-18-22-51-24-image.png)
 
 ### 2. Drops Listing
-Card-based layout showing active and upcoming drops with real-time stock.
+
+![](C:\Users\Bilgisayar\AppData\Roaming\marktext\images\2025-11-18-22-52-51-image.png)
 
 ### 3. Drop Detail & Claim
-Detailed drop view with waitlist join/leave and claim functionality.
+
+![](C:\Users\Bilgisayar\AppData\Roaming\marktext\images\2025-11-18-22-54-23-image.png)
+
+![](C:\Users\Bilgisayar\AppData\Roaming\marktext\images\2025-11-18-22-57-37-image.png)
 
 ### 4. Claim Success
-Display unique claim code (format: XXXX-XXXX-XXXX).
+
+![](C:\Users\Bilgisayar\AppData\Roaming\marktext\images\2025-11-18-22-58-05-image.png)
 
 ### 5. Admin Panel
-Drop management interface with create, update, delete operations.
+
+![](C:\Users\Bilgisayar\AppData\Roaming\marktext\images\2025-11-18-22-59-07-image.png)
 
 ---
 
@@ -299,26 +344,31 @@ Drop management interface with create, update, delete operations.
 ### Key Architectural Choices
 
 **1. Repository Pattern**
+
 - Separates data access from business logic
 - Makes testing easier with mock repositories
 - Centralizes database queries
 
 **2. Service Layer**
+
 - Business logic isolated from HTTP layer
 - Reusable across different controllers
 - Easier to test complex workflows
 
 **3. Transaction-Safe Operations**
+
 - SQLite IMMEDIATE transactions prevent race conditions
 - Row-level locking ensures stock consistency
 - Idempotent operations prevent duplicate claims
 
 **4. Seed-Based Priority Algorithm**
+
 - Unique per project (git metadata)
 - Prevents gaming the system
 - Fair distribution based on account age and signup speed
 
 **5. Modular Frontend with Zustand**
+
 - Lightweight state management
 - Persistent auth state
 - Clean separation of concerns
@@ -326,18 +376,21 @@ Drop management interface with create, update, delete operations.
 ### Personal Contributions
 
 **Backend Optimizations:**
+
 - Custom idempotency checks in all critical paths
 - Database indexes for common queries
 - Error handling with descriptive messages
 - Comprehensive validation using Zod
 
 **Frontend Features:**
+
 - Real-time stock and status updates
 - Responsive design (mobile-first)
 - Loading states and error boundaries
 - Clean gradient UI design
 
 **Testing Strategy:**
+
 - Isolated test database per suite
 - Concurrent request testing
 - Edge case coverage
@@ -348,17 +401,20 @@ Drop management interface with create, update, delete operations.
 ## 🔍 Code Quality
 
 ### Linting & Formatting
+
 - ESLint configured for TypeScript
 - Strict mode enabled
 - Type safety enforced
 
 ### Commit Strategy
+
 - Feature branches for each component
 - Descriptive commit messages
 - Progressive development (24 commits)
 - No "big bang" commits
 
 ### Project Structure
+
 ```
 drop-spot/
 ├── backend/
@@ -391,6 +447,7 @@ drop-spot/
 ## 🚀 Deployment
 
 ### Backend
+
 ```bash
 cd backend
 npm run build
@@ -398,6 +455,7 @@ npm start
 ```
 
 ### Frontend
+
 ```bash
 cd frontend
 npm run build
@@ -405,6 +463,7 @@ npm start
 ```
 
 ### Production Considerations
+
 - Use PostgreSQL instead of SQLite for production
 - Configure proper CORS origins
 - Set strong JWT_SECRET
@@ -413,51 +472,3 @@ npm start
 - Setup monitoring (e.g., Sentry)
 
 ---
-
-## 📝 Development Notes
-
-### Git Workflow
-- Main branch contains stable code
-- Feature branches for each component
-- Merge commits with PR-style messages
-- Clean, linear history
-
-### Seed Information
-The project's unique seed is generated from:
-- Git remote URL
-- First commit timestamp
-- Project start time
-
-This ensures each deployment has unique priority scoring.
-
----
-
-## 🎯 Future Enhancements
-
-- Email notifications for claim window opening
-- Webhooks for claim events
-- Real-time updates with WebSockets
-- Advanced analytics dashboard
-- Multiple drop types (lottery, first-come-first-serve)
-- Social sharing features
-
----
-
-## 📄 License
-
-This project is created as a technical assessment.
-
----
-
-## 🙏 Acknowledgments
-
-Built with modern web technologies and best practices:
-- Transaction-safe database operations
-- Comprehensive testing
-- Type-safe development
-- Responsive UI design
-- Clean architecture
-
----
-
-**Contact:** For questions or support, please refer to the project documentation.
